@@ -1,37 +1,40 @@
 /* globals document */
 /* eslint react/no-array-index-key: 1 */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react"
+import PropTypes from "prop-types"
 
-import * as SliderConstants from './constants/SliderConstants';
-import linear from './algorithms/linear';
+import * as SliderConstants from "./constants/SliderConstants"
+import linear from "./algorithms/linear"
 
 function getClassName(props) {
-  const orientation = props.orientation === 'vertical'
-    ? 'rheostat-vertical'
-    : 'rheostat-horizontal';
+  const orientation = props.orientation === "vertical"
+    ? "rheostat-vertical"
+    : "rheostat-horizontal"
 
-  return ['rheostat', orientation].concat(props.className.split(' ')).join(' ');
+  return ["rheostat", orientation].concat(props.className.split(" ")).join(" ")
 }
 
-const has = Object.prototype.hasOwnProperty;
+const has = Object.prototype.hasOwnProperty
 
-const PropTypeArrOfNumber = PropTypes.arrayOf(PropTypes.number);
-const PropTypeReactComponent = PropTypes.oneOfType([PropTypes.func, PropTypes.string]);
+const PropTypeArrOfNumber = PropTypes.arrayOf(PropTypes.number)
+const PropTypeReactComponent = PropTypes.oneOfType([
+  PropTypes.func,
+  PropTypes.string
+])
 
 function getHandleFor(ev) {
-  return Number(ev.currentTarget.getAttribute('data-handle-key'));
+  return Number(ev.currentTarget.getAttribute("data-handle-key"))
 }
 
 function killEvent(ev) {
-  ev.stopPropagation();
-  ev.preventDefault();
+  ev.stopPropagation()
+  ev.preventDefault()
 }
 
 class Button extends React.Component {
   render() {
-    return <button {...this.props} type="button" />;
+    return <button {...this.props} type="button" />
   }
 }
 
@@ -39,7 +42,7 @@ const propTypes = {
   // the algorithm to use
   algorithm: PropTypes.shape({
     getValue: PropTypes.func,
-    getPosition: PropTypes.func,
+    getPosition: PropTypes.func
   }),
   // any children you pass in
   children: PropTypes.any,
@@ -69,7 +72,7 @@ const propTypes = {
   // (dragging, clicked, keypress)
   onValuesUpdated: PropTypes.func,
   // the orientation
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  orientation: PropTypes.oneOf(["horizontal", "vertical"]),
   // a component for rendering the pits
   pitComponent: PropTypeReactComponent,
   // the points that pits are rendered on
@@ -81,95 +84,92 @@ const propTypes = {
   // the points we should snap to
   snapPoints: PropTypeArrOfNumber,
   // the values
-  values: PropTypeArrOfNumber,
-};
+  values: PropTypeArrOfNumber
+}
 
 const defaultProps = {
   algorithm: linear,
-  className: '',
+  className: "",
   disabled: false,
   handle: Button,
   max: SliderConstants.PERCENT_FULL,
   min: SliderConstants.PERCENT_EMPTY,
-  orientation: 'horizontal',
+  orientation: "horizontal",
   pitPoints: [],
-  progressBar: 'div',
+  progressBar: "div",
   snap: false,
   snapPoints: [],
-  values: [
-    SliderConstants.PERCENT_EMPTY,
-  ],
-};
+  values: [SliderConstants.PERCENT_EMPTY]
+}
 
 class Rheostat extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    const { max, min, values } = this.props;
+    const { max, min, values } = this.props
     this.state = {
       className: getClassName(this.props),
-      handlePos: values.map(value => this.props.algorithm.getPosition(value, min, max)),
+      handlePos: values.map(value =>
+        this.props.algorithm.getPosition(value, min, max)
+      ),
       handleDimensions: 0,
       mousePos: null,
       sliderBox: {},
       slidingIndex: null,
-      values,
-    };
-    this.getPublicState = this.getPublicState.bind(this);
-    this.getSliderBoundingBox = this.getSliderBoundingBox.bind(this);
-    this.getProgressStyle = this.getProgressStyle.bind(this);
-    this.getMinValue = this.getMinValue.bind(this);
-    this.getMaxValue = this.getMaxValue.bind(this);
-    this.getHandleDimensions = this.getHandleDimensions.bind(this);
-    this.getClosestSnapPoint = this.getClosestSnapPoint.bind(this);
-    this.getSnapPosition = this.getSnapPosition.bind(this);
-    this.getNextPositionForKey = this.getNextPositionForKey.bind(this);
-    this.getNextState = this.getNextState.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.getClosestHandle = this.getClosestHandle.bind(this);
-    this.setStartSlide = this.setStartSlide.bind(this);
-    this.startMouseSlide = this.startMouseSlide.bind(this);
-    this.startTouchSlide = this.startTouchSlide.bind(this);
-    this.handleMouseSlide = this.handleMouseSlide.bind(this);
-    this.handleTouchSlide = this.handleTouchSlide.bind(this);
-    this.handleSlide = this.handleSlide.bind(this);
-    this.endSlide = this.endSlide.bind(this);
-    this.handleKeydown = this.handleKeydown.bind(this);
-    this.validatePosition = this.validatePosition.bind(this);
-    this.validateValues = this.validateValues.bind(this);
-    this.canMove = this.canMove.bind(this);
-    this.fireChangeEvent = this.fireChangeEvent.bind(this);
-    this.slideTo = this.slideTo.bind(this);
-    this.updateNewValues = this.updateNewValues.bind(this);
+      values
+    }
+    this.getPublicState = this.getPublicState.bind(this)
+    this.getSliderBoundingBox = this.getSliderBoundingBox.bind(this)
+    this.getProgressStyle = this.getProgressStyle.bind(this)
+    this.getMinValue = this.getMinValue.bind(this)
+    this.getMaxValue = this.getMaxValue.bind(this)
+    this.getHandleDimensions = this.getHandleDimensions.bind(this)
+    this.getClosestSnapPoint = this.getClosestSnapPoint.bind(this)
+    this.getSnapPosition = this.getSnapPosition.bind(this)
+    this.getNextPositionForKey = this.getNextPositionForKey.bind(this)
+    this.getNextState = this.getNextState.bind(this)
+    this.handleClick = this.handleClick.bind(this)
+    this.getClosestHandle = this.getClosestHandle.bind(this)
+    this.setStartSlide = this.setStartSlide.bind(this)
+    this.startMouseSlide = this.startMouseSlide.bind(this)
+    this.startTouchSlide = this.startTouchSlide.bind(this)
+    this.handleMouseSlide = this.handleMouseSlide.bind(this)
+    this.handleTouchSlide = this.handleTouchSlide.bind(this)
+    this.handleSlide = this.handleSlide.bind(this)
+    this.endSlide = this.endSlide.bind(this)
+    this.handleKeydown = this.handleKeydown.bind(this)
+    this.validatePosition = this.validatePosition.bind(this)
+    this.validateValues = this.validateValues.bind(this)
+    this.canMove = this.canMove.bind(this)
+    this.fireChangeEvent = this.fireChangeEvent.bind(this)
+    this.slideTo = this.slideTo.bind(this)
+    this.updateNewValues = this.updateNewValues.bind(this)
   }
 
   componentWillReceiveProps(nextProps) {
-    const minMaxChanged = (
+    const minMaxChanged =
       nextProps.min !== this.props.min || nextProps.max !== this.props.max
-    );
 
-    const valuesChanged = (
+    const valuesChanged =
       this.state.values.length !== nextProps.values.length ||
       this.state.values.some((value, idx) => nextProps.values[idx] !== value)
-    );
 
-    const orientationChanged = (
+    const orientationChanged =
       nextProps.className !== this.props.className ||
       nextProps.orientation !== this.props.orientation
-    );
 
-    const willBeDisabled = nextProps.disabled && !this.props.disabled;
+    const willBeDisabled = nextProps.disabled && !this.props.disabled
 
     if (orientationChanged) {
       this.setState({
-        className: getClassName(nextProps),
-      });
+        className: getClassName(nextProps)
+      })
     }
 
-    if (minMaxChanged || valuesChanged) this.updateNewValues(nextProps);
+    if (minMaxChanged || valuesChanged) this.updateNewValues(nextProps)
 
     if (willBeDisabled && this.state.slidingIndex !== null) {
-      this.endSlide();
+      this.endSlide()
     }
   }
 
@@ -177,107 +177,114 @@ class Rheostat extends React.Component {
     return {
       max: this.props.max,
       min: this.props.min,
-      values: this.state.values,
-    };
+      values: this.state.values
+    }
   }
 
   // istanbul ignore next
   getSliderBoundingBox() {
-    const { rheostat } = this.refs;
-    const node = rheostat.getDOMNode ? rheostat.getDOMNode() : rheostat;
-    const rect = node.getBoundingClientRect();
+    const { rheostat } = this.refs
+    const node = rheostat.getDOMNode ? rheostat.getDOMNode() : rheostat
+    const rect = node.getBoundingClientRect()
 
     return {
       height: rect.height || node.clientHeight,
       left: rect.left,
       top: rect.top,
-      width: rect.width || node.clientWidth,
-    };
+      width: rect.width || node.clientWidth
+    }
   }
 
   getProgressStyle(idx) {
-    const { handlePos } = this.state;
+    const { handlePos } = this.state
 
-    const value = handlePos[idx];
+    const value = handlePos[idx]
 
     if (idx === 0) {
-      return this.props.orientation === 'vertical'
+      return this.props.orientation === "vertical"
         ? { height: `${value}%`, top: 0 }
-        : { left: 0, width: `${value}%` };
+        : { left: 0, width: `${value}%` }
     }
 
-    const prevValue = handlePos[idx - 1];
-    const diffValue = value - prevValue;
+    const prevValue = handlePos[idx - 1]
+    const diffValue = value - prevValue
 
-    return this.props.orientation === 'vertical'
+    return this.props.orientation === "vertical"
       ? { height: `${diffValue}%`, top: `${prevValue}%` }
-      : { left: `${prevValue}%`, width: `${diffValue}%` };
+      : { left: `${prevValue}%`, width: `${diffValue}%` }
   }
 
   getMinValue(idx) {
     return this.state.values[idx - 1]
       ? Math.max(this.props.min, this.state.values[idx - 1])
-      : this.props.min;
+      : this.props.min
   }
 
   getMaxValue(idx) {
     return this.state.values[idx + 1]
       ? Math.min(this.props.max, this.state.values[idx + 1])
-      : this.props.max;
+      : this.props.max
   }
 
   // istanbul ignore next
   getHandleDimensions(ev, sliderBox) {
-    const handleNode = ev.currentTarget || null;
+    const handleNode = ev.currentTarget || null
 
-    if (!handleNode) return 0;
+    if (!handleNode) return 0
 
-    return this.props.orientation === 'vertical'
-      ? ((handleNode.clientHeight / sliderBox.height) * SliderConstants.PERCENT_FULL) / 2
-      : ((handleNode.clientWidth / sliderBox.width) * SliderConstants.PERCENT_FULL) / 2;
+    return this.props.orientation === "vertical"
+      ? handleNode.clientHeight /
+          sliderBox.height *
+          SliderConstants.PERCENT_FULL /
+          2
+      : handleNode.clientWidth /
+          sliderBox.width *
+          SliderConstants.PERCENT_FULL /
+          2
   }
 
   getClosestSnapPoint(value) {
-    if (!this.props.snapPoints.length) return value;
+    if (!this.props.snapPoints.length) return value
 
-    return this.props.snapPoints.reduce((snapTo, snap) => (
-      Math.abs(snapTo - value) < Math.abs(snap - value) ? snapTo : snap
-    ));
+    return this.props.snapPoints.reduce(
+      (snapTo, snap) =>
+        Math.abs(snapTo - value) < Math.abs(snap - value) ? snapTo : snap
+    )
   }
 
   getSnapPosition(positionPercent) {
-    if (!this.props.snap) return positionPercent;
+    if (!this.props.snap) return positionPercent
 
-    const { algorithm, max, min } = this.props;
+    const { algorithm, max, min } = this.props
 
-    const value = algorithm.getValue(positionPercent, min, max);
+    const value = algorithm.getValue(positionPercent, min, max)
 
-    const snapValue = this.getClosestSnapPoint(value);
+    const snapValue = this.getClosestSnapPoint(value)
 
-    return algorithm.getPosition(snapValue, min, max);
+    return algorithm.getPosition(snapValue, min, max)
   }
 
   getNextPositionForKey(idx, keyCode) {
-    const { handlePos, values } = this.state;
-    const { algorithm, max, min, snapPoints } = this.props;
+    const { handlePos, values } = this.state
+    const { algorithm, max, min, snapPoints } = this.props
 
-    const shouldSnap = this.props.snap;
+    const shouldSnap = this.props.snap
 
-    let proposedValue = values[idx];
-    let proposedPercentage = handlePos[idx];
-    const originalPercentage = proposedPercentage;
-    let stepValue = 1;
+    let proposedValue = values[idx]
+    let proposedPercentage = handlePos[idx]
+    const originalPercentage = proposedPercentage
+    let stepValue = 1
 
     if (max >= 100) {
-      proposedPercentage = Math.round(proposedPercentage);
+      proposedPercentage = Math.round(proposedPercentage)
     } else {
-      stepValue = 100 / (max - min);
+      stepValue = 100 / (max - min)
     }
 
-    let currentIndex = null;
+    let currentIndex = null
 
     if (shouldSnap) {
-      currentIndex = snapPoints.indexOf(this.getClosestSnapPoint(values[idx]));
+      currentIndex = snapPoints.indexOf(this.getClosestSnapPoint(values[idx]))
     }
 
     const stepMultiplier = {
@@ -286,310 +293,311 @@ class Rheostat extends React.Component {
       [SliderConstants.KEYS.UP]: v => v * 1,
       [SliderConstants.KEYS.DOWN]: v => v * -1,
       [SliderConstants.KEYS.PAGE_DOWN]: v => (v > 1 ? -v : v * -10),
-      [SliderConstants.KEYS.PAGE_UP]: v => (v > 1 ? v : v * 10),
-    };
+      [SliderConstants.KEYS.PAGE_UP]: v => (v > 1 ? v : v * 10)
+    }
 
     if (has.call(stepMultiplier, keyCode)) {
-      proposedPercentage += stepMultiplier[keyCode](stepValue);
+      proposedPercentage += stepMultiplier[keyCode](stepValue)
 
       if (shouldSnap) {
         if (proposedPercentage > originalPercentage) {
           // move cursor right unless overflow
           if (currentIndex < snapPoints.length - 1) {
-            proposedValue = snapPoints[currentIndex + 1];
+            proposedValue = snapPoints[currentIndex + 1]
           }
-        // move cursor left unless there is overflow
+          // move cursor left unless there is overflow
         } else if (currentIndex > 0) {
-          proposedValue = snapPoints[currentIndex - 1];
+          proposedValue = snapPoints[currentIndex - 1]
         }
       }
     } else if (keyCode === SliderConstants.KEYS.HOME) {
-      proposedPercentage = SliderConstants.PERCENT_EMPTY;
+      proposedPercentage = SliderConstants.PERCENT_EMPTY
 
       if (shouldSnap) {
-        proposedValue = snapPoints[0];
+        proposedValue = snapPoints[0]
       }
     } else if (keyCode === SliderConstants.KEYS.END) {
-      proposedPercentage = SliderConstants.PERCENT_FULL;
+      proposedPercentage = SliderConstants.PERCENT_FULL
 
       if (shouldSnap) {
-        proposedValue = snapPoints[snapPoints.length - 1];
+        proposedValue = snapPoints[snapPoints.length - 1]
       }
     } else {
-      return null;
+      return null
     }
 
     return shouldSnap
       ? algorithm.getPosition(proposedValue, min, max)
-      : proposedPercentage;
+      : proposedPercentage
   }
 
   getNextState(idx, proposedPosition) {
-    const { handlePos } = this.state;
-    const { max, min } = this.props;
+    const { handlePos } = this.state
+    const { max, min } = this.props
 
-    const actualPosition = this.validatePosition(idx, proposedPosition);
+    const actualPosition = this.validatePosition(idx, proposedPosition)
 
-    const nextHandlePos = handlePos.map((pos, index) => (
-      index === idx ? actualPosition : pos
-    ));
+    const nextHandlePos = handlePos.map(
+      (pos, index) => (index === idx ? actualPosition : pos)
+    )
 
     return {
       handlePos: nextHandlePos,
-      values: nextHandlePos.map(pos => (
+      values: nextHandlePos.map(pos =>
         this.props.algorithm.getValue(pos, min, max)
-      )),
-    };
+      )
+    }
   }
 
   getClosestHandle(positionPercent) {
-    const { handlePos } = this.state;
+    const { handlePos } = this.state
 
     return handlePos.reduce((closestIdx, node, idx) => {
-      const challenger = Math.abs(handlePos[idx] - positionPercent);
-      const current = Math.abs(handlePos[closestIdx] - positionPercent);
-      return challenger < current ? idx : closestIdx;
-    }, 0);
+      const challenger = Math.abs(handlePos[idx] - positionPercent)
+      const current = Math.abs(handlePos[closestIdx] - positionPercent)
+      return challenger < current ? idx : closestIdx
+    }, 0)
   }
 
   // istanbul ignore next
   setStartSlide(ev, x, y) {
-    const sliderBox = this.getSliderBoundingBox();
+    const sliderBox = this.getSliderBoundingBox()
 
     this.setState({
       handleDimensions: this.getHandleDimensions(ev, sliderBox),
       mousePos: { x, y },
       sliderBox,
-      slidingIndex: getHandleFor(ev),
-    });
+      slidingIndex: getHandleFor(ev)
+    })
   }
 
   // istanbul ignore next
   startMouseSlide(ev) {
-    this.setStartSlide(ev, ev.clientX, ev.clientY);
+    this.setStartSlide(ev, ev.clientX, ev.clientY)
 
-    if (typeof document.addEventListener === 'function') {
-      document.addEventListener('mousemove', this.handleMouseSlide, false);
-      document.addEventListener('mouseup', this.endSlide, false);
+    if (typeof document.addEventListener === "function") {
+      document.addEventListener("mousemove", this.handleMouseSlide, false)
+      document.addEventListener("mouseup", this.endSlide, false)
     } else {
-      document.attachEvent('onmousemove', this.handleMouseSlide);
-      document.attachEvent('onmouseup', this.endSlide);
+      document.attachEvent("onmousemove", this.handleMouseSlide)
+      document.attachEvent("onmouseup", this.endSlide)
     }
 
-    killEvent(ev);
+    killEvent(ev)
   }
 
   // istanbul ignore next
   startTouchSlide(ev) {
-    if (ev.changedTouches.length > 1) return;
+    if (ev.changedTouches.length > 1) return
 
-    const touch = ev.changedTouches[0];
+    const touch = ev.changedTouches[0]
 
-    this.setStartSlide(ev, touch.clientX, touch.clientY);
+    this.setStartSlide(ev, touch.clientX, touch.clientY)
 
-    document.addEventListener('touchmove', this.handleTouchSlide, false);
-    document.addEventListener('touchend', this.endSlide, false);
+    document.addEventListener("touchmove", this.handleTouchSlide, false)
+    document.addEventListener("touchend", this.endSlide, false)
 
-    if (this.props.onSliderDragStart) this.props.onSliderDragStart();
+    if (this.props.onSliderDragStart) this.props.onSliderDragStart()
 
-    killEvent(ev);
+    killEvent(ev)
   }
 
   // istanbul ignore next
   handleMouseSlide(ev) {
-    if (this.state.slidingIndex === null) return;
-    this.handleSlide(ev.clientX, ev.clientY);
-    killEvent(ev);
+    if (this.state.slidingIndex === null) return
+    this.handleSlide(ev.clientX, ev.clientY)
+    killEvent(ev)
   }
 
   // istanbul ignore next
   handleTouchSlide(ev) {
-    if (this.state.slidingIndex === null) return;
+    if (this.state.slidingIndex === null) return
 
     if (ev.changedTouches.length > 1) {
-      this.endSlide();
-      return;
+      this.endSlide()
+      return
     }
 
-    const touch = ev.changedTouches[0];
+    const touch = ev.changedTouches[0]
 
-    this.handleSlide(touch.clientX, touch.clientY);
-    killEvent(ev);
+    this.handleSlide(touch.clientX, touch.clientY)
+    killEvent(ev)
   }
 
   // istanbul ignore next
   handleSlide(x, y) {
-    const { slidingIndex: idx, sliderBox } = this.state;
+    const { slidingIndex: idx, sliderBox } = this.state
 
-    const positionPercent = this.props.orientation === 'vertical'
-      ? ((y - sliderBox.top) / sliderBox.height) * SliderConstants.PERCENT_FULL
-      : ((x - sliderBox.left) / sliderBox.width) * SliderConstants.PERCENT_FULL;
+    const positionPercent = this.props.orientation === "vertical"
+      ? (y - sliderBox.top) / sliderBox.height * SliderConstants.PERCENT_FULL
+      : (x - sliderBox.left) / sliderBox.width * SliderConstants.PERCENT_FULL
 
-    this.slideTo(idx, positionPercent);
+    this.slideTo(idx, positionPercent)
 
     if (this.canMove(idx, positionPercent)) {
       // update mouse positions
-      this.setState({ x, y });
-      if (this.props.onSliderDragMove) this.props.onSliderDragMove();
+      this.setState({ x, y })
+      if (this.props.onSliderDragMove) this.props.onSliderDragMove()
     }
   }
 
   // istanbul ignore next
   endSlide() {
-    const idx = this.state.slidingIndex;
+    const idx = this.state.slidingIndex
 
-    this.setState({ slidingIndex: null });
+    this.setState({ slidingIndex: null })
 
-    if (typeof document.removeEventListener === 'function') {
-      document.removeEventListener('mouseup', this.endSlide, false);
-      document.removeEventListener('touchend', this.endSlide, false);
-      document.removeEventListener('touchmove', this.handleTouchSlide, false);
-      document.removeEventListener('mousemove', this.handleMouseSlide, false);
+    if (typeof document.removeEventListener === "function") {
+      document.removeEventListener("mouseup", this.endSlide, false)
+      document.removeEventListener("touchend", this.endSlide, false)
+      document.removeEventListener("touchmove", this.handleTouchSlide, false)
+      document.removeEventListener("mousemove", this.handleMouseSlide, false)
     } else {
-      document.detachEvent('onmousemove', this.handleMouseSlide);
-      document.detachEvent('onmouseup', this.endSlide);
+      document.detachEvent("onmousemove", this.handleMouseSlide)
+      document.detachEvent("onmouseup", this.endSlide)
     }
 
-    if (this.props.onSliderDragEnd) this.props.onSliderDragEnd();
+    if (this.props.onSliderDragEnd) this.props.onSliderDragEnd()
     if (this.props.snap) {
-      const positionPercent = this.getSnapPosition(this.state.handlePos[idx]);
-      this.slideTo(idx, positionPercent, () => this.fireChangeEvent());
+      const positionPercent = this.getSnapPosition(this.state.handlePos[idx])
+      this.slideTo(idx, positionPercent, () => this.fireChangeEvent())
     } else {
-      this.fireChangeEvent();
+      this.fireChangeEvent()
     }
   }
 
   // istanbul ignore next
   handleClick(ev) {
-    if (ev.target.getAttribute('data-handle-key')) {
-      return;
+    if (ev.target.getAttribute("data-handle-key")) {
+      return
     }
 
     // Calculate the position of the slider on the page so we can determine
     // the position where you click in relativity.
-    const sliderBox = this.getSliderBoundingBox();
+    const sliderBox = this.getSliderBoundingBox()
 
-    const positionDecimal = this.props.orientation === 'vertical'
+    const positionDecimal = this.props.orientation === "vertical"
       ? (ev.clientY - sliderBox.top) / sliderBox.height
-      : (ev.clientX - sliderBox.left) / sliderBox.width;
+      : (ev.clientX - sliderBox.left) / sliderBox.width
 
-    const positionPercent = positionDecimal * SliderConstants.PERCENT_FULL;
+    const positionPercent = positionDecimal * SliderConstants.PERCENT_FULL
 
-    const handleId = this.getClosestHandle(positionPercent);
+    const handleId = this.getClosestHandle(positionPercent)
 
-    const validPositionPercent = this.getSnapPosition(positionPercent);
+    const validPositionPercent = this.getSnapPosition(positionPercent)
 
     // Move the handle there
-    this.slideTo(handleId, validPositionPercent, () => this.fireChangeEvent());
+    this.slideTo(handleId, validPositionPercent, () => this.fireChangeEvent())
 
-    if (this.props.onClick) this.props.onClick();
+    if (this.props.onClick) this.props.onClick()
   }
 
   // istanbul ignore next
   handleKeydown(ev) {
-    const idx = getHandleFor(ev);
+    const idx = getHandleFor(ev)
 
     if (ev.keyCode === SliderConstants.KEYS.ESC) {
-      ev.currentTarget.blur();
-      return;
+      ev.currentTarget.blur()
+      return
     }
 
-    const proposedPercentage = this.getNextPositionForKey(idx, ev.keyCode);
+    const proposedPercentage = this.getNextPositionForKey(idx, ev.keyCode)
 
-    if (proposedPercentage === null) return;
+    if (proposedPercentage === null) return
 
     if (this.canMove(idx, proposedPercentage)) {
-      this.slideTo(idx, proposedPercentage, () => this.fireChangeEvent());
-      if (this.props.onKeyPress) this.props.onKeyPress();
+      this.slideTo(idx, proposedPercentage, () => this.fireChangeEvent())
+      if (this.props.onKeyPress) this.props.onKeyPress()
     }
 
-    killEvent(ev);
+    killEvent(ev)
   }
 
   // Make sure the proposed position respects the bounds and
   // does not collide with other handles too much.
   validatePosition(idx, proposedPosition) {
-    const { handlePos, handleDimensions } = this.state;
+    const { handlePos, handleDimensions } = this.state
 
     return Math.max(
       Math.min(
         proposedPosition,
         handlePos[idx + 1] !== undefined
           ? handlePos[idx + 1] - handleDimensions
-          : SliderConstants.PERCENT_FULL, // 100% is the highest value
+          : SliderConstants.PERCENT_FULL // 100% is the highest value
       ),
       handlePos[idx - 1] !== undefined
         ? handlePos[idx - 1] + handleDimensions
-        : SliderConstants.PERCENT_EMPTY, // 0% is the lowest value
-    );
+        : SliderConstants.PERCENT_EMPTY // 0% is the lowest value
+    )
   }
 
   validateValues(proposedValues, props) {
-    const { max, min } = props || this.props;
+    const { max, min } = props || this.props
 
     return proposedValues.map((value, idx, values) => {
-      const realValue = Math.max(Math.min(value, max), min);
+      const realValue = Math.max(Math.min(value, max), min)
 
       if (values.length && realValue < values[idx - 1]) {
-        return values[idx - 1];
+        return values[idx - 1]
       }
 
-      return realValue;
-    });
+      return realValue
+    })
   }
 
   // Can we move the slider to the given position?
   canMove(idx, proposedPosition) {
-    const { handlePos, handleDimensions } = this.state;
+    const { handlePos, handleDimensions } = this.state
 
-    if (proposedPosition < SliderConstants.PERCENT_EMPTY) return false;
-    if (proposedPosition > SliderConstants.PERCENT_FULL) return false;
+    if (proposedPosition < SliderConstants.PERCENT_EMPTY) return false
+    if (proposedPosition > SliderConstants.PERCENT_FULL) return false
 
     const nextHandlePosition = handlePos[idx + 1] !== undefined
       ? handlePos[idx + 1] - handleDimensions
-      : Infinity;
+      : Infinity
 
-    if (proposedPosition > nextHandlePosition) return false;
+    if (proposedPosition > nextHandlePosition) return false
 
     const prevHandlePosition = handlePos[idx - 1] !== undefined
       ? handlePos[idx - 1] + handleDimensions
-      : -Infinity;
+      : -Infinity
 
-    if (proposedPosition < prevHandlePosition) return false;
+    if (proposedPosition < prevHandlePosition) return false
 
-    return true;
+    return true
   }
 
   // istanbul ignore next
   fireChangeEvent() {
-    if (this.props.onChange) this.props.onChange(this.getPublicState());
+    if (this.props.onChange) this.props.onChange(this.getPublicState())
   }
 
   // istanbul ignore next
   slideTo(idx, proposedPosition, onAfterSet) {
-    const nextState = this.getNextState(idx, proposedPosition);
+    const nextState = this.getNextState(idx, proposedPosition)
 
     this.setState(nextState, () => {
-      if (this.props.onValuesUpdated) this.props.onValuesUpdated(this.getPublicState());
-      if (onAfterSet) onAfterSet();
-    });
+      if (this.props.onValuesUpdated)
+        this.props.onValuesUpdated(this.getPublicState())
+      if (onAfterSet) onAfterSet()
+    })
   }
 
   // istanbul ignore next
   updateNewValues(nextProps) {
-    // Don't update while the slider is sliding
-    if (this.state.slidingIndex !== null) {
-      return;
-    }
+    const { max, min, values } = nextProps
 
-    const { max, min, values } = nextProps;
+    const nextValues = this.validateValues(values, nextProps)
 
-    const nextValues = this.validateValues(values, nextProps);
-
-    this.setState({
-      handlePos: nextValues.map(value => this.props.algorithm.getPosition(value, min, max)),
-      values: nextValues,
-    }, () => this.fireChangeEvent());
+    this.setState(
+      {
+        handlePos: nextValues.map(value =>
+          this.props.algorithm.getPosition(value, min, max)
+        ),
+        values: nextValues
+      },
+      () => this.fireChangeEvent()
+    )
   }
 
   render() {
@@ -603,8 +611,8 @@ class Rheostat extends React.Component {
       orientation,
       pitComponent: PitComponent,
       pitPoints,
-      progressBar: ProgressBar,
-    } = this.props;
+      progressBar: ProgressBar
+    } = this.props
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
@@ -612,13 +620,12 @@ class Rheostat extends React.Component {
         className={this.state.className}
         ref="rheostat"
         onClick={!disabled && this.handleClick}
-        style={{ position: 'relative' }}
-      >
+        style={{ position: "relative" }}>
         <div className="rheostat-background" />
         {this.state.handlePos.map((pos, idx) => {
-          const handleStyle = orientation === 'vertical'
-            ? { top: `${pos}%`, position: 'absolute' }
-            : { left: `${pos}%`, position: 'absolute' };
+          const handleStyle = orientation === "vertical"
+            ? { top: `${pos}%`, position: "absolute" }
+            : { left: `${pos}%`, position: "absolute" }
 
           return (
             <Handle
@@ -637,11 +644,11 @@ class Rheostat extends React.Component {
               style={handleStyle}
               tabIndex={0}
             />
-          );
+          )
         })}
         {this.state.handlePos.map((node, idx, arr) => {
           if (idx === 0 && arr.length > 1) {
-            return null;
+            return null
           }
 
           return (
@@ -650,24 +657,23 @@ class Rheostat extends React.Component {
               key={idx}
               style={this.getProgressStyle(idx)}
             />
-          );
+          )
         })}
-        {PitComponent && pitPoints.map((n) => {
-          const pos = algorithm.getPosition(n, min, max);
-          const pitStyle = orientation === 'vertical'
-            ? { top: `${pos}%`, position: 'absolute' }
-            : { left: `${pos}%`, position: 'absolute' };
+        {PitComponent &&
+          pitPoints.map(n => {
+            const pos = algorithm.getPosition(n, min, max)
+            const pitStyle = orientation === "vertical"
+              ? { top: `${pos}%`, position: "absolute" }
+              : { left: `${pos}%`, position: "absolute" }
 
-          return (
-            <PitComponent key={n} style={pitStyle}>{n}</PitComponent>
-          );
-        })}
+            return <PitComponent key={n} style={pitStyle}>{n}</PitComponent>
+          })}
         {children}
       </div>
-    );
+    )
   }
 }
-Rheostat.propTypes = propTypes;
-Rheostat.defaultProps = defaultProps;
+Rheostat.propTypes = propTypes
+Rheostat.defaultProps = defaultProps
 
-export default Rheostat;
+export default Rheostat
